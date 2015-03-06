@@ -4,11 +4,11 @@ $(document).ready(function(){
 
 	var Birds=[];	
 	var data=[];
-	var background;
+	var background,bir;
 	function init(){
 		Birds.push(new Bird({x:50,y:50}));
 		Birds.push(new Bird({x:100,y:150}));
-		//Birds.push(new Bird({x:150,y:50}));
+		Birds.push(new Bird({x:150,y:50}));
 		
 
 		background = d3.select("body").append("svg")
@@ -17,11 +17,11 @@ $(document).ready(function(){
 			.attr("class",'bg');
 
 		//DRAW BIRDS		
-		background.selectAll("bird").data(Birds).enter()
+		bir=background.selectAll("bird").data(Birds).enter()
 			.append("svg:ellipse")
 			.attr("rx",20)
 			.attr("ry",10)
-			.attr("transform",function(d){return "rotate("+(d.a+90)+","+d.x+","+d.y+")";})
+			.attr("transform",function(d){return "rotate("+(d.a*180/Math.PI+90)+","+d.x+","+d.y+")";})
 			.attr("cx",function(d){return d.x;})
 			.attr("cy",function(d){return d.y;})
 			.attr("class","birds");
@@ -52,14 +52,26 @@ $(document).ready(function(){
 			var angle = Math.atan2((aimy-Birds[q].y),(aimx-Birds[q].x));
 			
 			//cap magnitude
-			distance=Math.min(distance,5);
+			distance=Math.min(distance,0.05);
+		
+			var dy=distance*Math.sin(angle);
+			var dx=distance*Math.cos(angle);
 
-			console.log("dy: "+distance*Math.sin(angle));
-			console.log("dx: "+distance*Math.cos(angle));
+			console.log("dy: "+dy+" dx: "+dx);
 
-			Birds[q].dx+=distance*Math.cos(angle);
-			Birds[q].dy+=distance*Math.sin(angle);
+			Birds[q].dy+=dy;
+			Birds[q].dx+=dx;
 		}
+		for(var q=0;q<numBirds;q++){
+			Birds[q].update();
+		}
+		bir = bir.data(Birds)
+			.attr("transform",function(d){return "rotate("+(d.a*180/Math.PI+90)+","+d.x+","+d.y+")";})
+			.attr("cx",function(d){return d.x;})
+			.attr("cy",function(d){return d.y;});
+		bir.exit().remove();
+
+		//return true;
 	}
 	d3.timer(update,1000,1000);
 	init();
