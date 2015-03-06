@@ -7,8 +7,12 @@ $(document).ready(function(){
 	var background,bir;
 	function init(){
 		Birds.push(new Bird({x:50,y:50}));
-		Birds.push(new Bird({x:100,y:150}));
+		Birds.push(new Bird({x:100,y:80}));
 		Birds.push(new Bird({x:150,y:50}));
+		Birds.push(new Bird({x:200,y:50}));
+		Birds.push(new Bird({x:250,y:50}));
+		Birds.push(new Bird({x:300,y:50}));
+		Birds.push(new Bird({x:350,y:50}));
 		
 
 		background = d3.select("body").append("svg")
@@ -52,16 +56,55 @@ $(document).ready(function(){
 			var angle = Math.atan2((aimy-Birds[q].y),(aimx-Birds[q].x));
 			
 			//cap magnitude
-			distance=Math.min(distance,0.05);
+			distance=Math.min(distance,0.01);
 		
 			var dy=distance*Math.sin(angle);
 			var dx=distance*Math.cos(angle);
 
-			console.log("dy: "+dy+" dx: "+dx);
-
+			//console.log("dy: "+dy+" dx: "+dx);
+			
 			Birds[q].dy+=dy;
 			Birds[q].dx+=dx;
+			
+			//RULE 2: CHECK FOR ANY BIRDS THAT ARE WITHIN A RADIUS OF 50 AND AVOID THEM
+
+			for(var w=0;w<numBirds;w++){
+				if(q==w)continue;
+				if(Math.sqrt(Math.pow(Birds[w].y-Birds[q].y,2)+Math.pow(Birds[w].x-Birds[q].x,2))<40){
+					//CALCULATE A VECTOR IN THE OPPOSITE DIRECTION OF 
+					var distance = Math.sqrt(Math.pow(Birds[w].y-Birds[q].y,2)+Math.pow(Birds[w].x-Birds[q].x,2));
+					var angle = Math.atan2((Birds[w].y-Birds[q].y),(Birds[w].x-Birds[q].y));
+					angle+=Math.PI;
+					distance=Math.min(distance,0.1);
+					var dy=distance*Math.sin(angle);
+					var dx=distance*Math.cos(angle);
+					
+					Birds[q].dy+=dy;
+					Birds[q].dx+=dx;
+
+					//console.log("DISTANCE BETWEEN BIRD "+q+" AND BIRD "+w+" IS "+distance+" ang: "+angle);
+					//console.log("BIRD "+q+" has a change of dy: "+dy+" dx: "+dx);
+				}
+			}
+
+			//RULE 3: MAKE SPEED SAME
+			var currentspeed=Math.sqrt(Math.pow(Birds[q].dy,2)+Math.pow(Birds[q].dx,2));
+			var avgspeed = (totalv-currentspeed)/(numBirds-1);
+			if(avgspeed>currentspeed){
+				//SPEED UP YOU FOOL
+				Birds[q].dy*=1.1;
+				Birds[q].dx*=1.1;
+			}else if(currentspeed>avgspeed){
+				//SLOW DOWN YOU FOOL
+				
+				Birds[q].dy*=0.9;
+				Birds[q].dx*=0.9;
+			}
 		}
+
+		
+
+
 		for(var q=0;q<numBirds;q++){
 			Birds[q].update();
 		}
