@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>PONG</title>
+	<meta charset="utf-8"/>
+	<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+	<script type="text/javascript" src="pong.js"></script>
+
+	<style>
+		svg{
+			border:1px solid gray;
+		}
+		rect{
+			fill: steelblue;
+		}
+	</style>
+	<script>
+		var me = new Paddle({x:10,y:100});
+		var ai = new Paddle({x:290,y:100});
+		var ball = new Ball({x:150,y:120});
+		var svg;
+		function init(){
+			var dd=[];
+			dd.push(me.coord());
+			dd.push(ai.coord());
+			dd.push(ball.coord());
+			
+			svg=d3.select('body').append('svg')
+				.attr('width',300)
+				.attr('height',300);
+
+			svg.selectAll('rect').data(dd)
+				.enter().append('rect')
+				.attr('x',function(d){return d.x;})
+				.attr('y',function(d){return d.y;})
+				.attr("height",function(d){return d.h;})
+				.attr("width",function(d){return d.w;})
+				.attr("fill","blue");
+			redraw();
+		}
+		function redraw(){
+
+			
+
+			var dd=[];
+			dd.push(me.coord());
+
+
+
+			dd.push(ai.coord());
+			
+			ball.move();
+			if(ball.y<0||ball.y>280)ball.inverty();
+			if(ball.x<-20||ball.x>300)ball.reset();
+
+			//COLLISION DETECTION WITH PADDLES
+			for(var q=0;q<2;q++){
+				if((ball.x<dd[q].w+dd[q].x&&ball.x+ball.w>dd[q].x+dd[q].w) &&((ball.y+ball.h>=dd[q].y && ball.y<=dd[q].y+dd[q].h))){
+					ball.invertx();
+					console.log("MIGHT COLLIDE");
+				}
+			}
+			dd.push(ball.coord());	
+
+			//AI SCRIPT
+			if(ball.y<ai.y)ai.sety(ai.y-15);
+			if(ball.y>ai.y+ai.h)ai.sety(ai.y+15);
+
+			var bar = svg.selectAll('rect').data(dd);
+			/*bar.enter().append('rect')
+				.attr('x',function(d){return d.x;})
+				.attr('y',function(d){return d.y;})
+				.attr("height",function(d){return d.h;})
+				.attr("width",function(d){return d.w;})
+				.attr("fill","blue");
+			bar.exit().remove();
+			*/
+				
+			bar
+				.attr('x',function(d){return d.x;})
+				.attr('y',function(d){return d.y;})
+				.attr("height",function(d){return d.h;})
+				.attr("width",function(d){return d.w;})
+				.attr("fill","blue");
+
+			setTimeout(redraw,20);	
+		}
+		window.onkeydown = function(event){
+			var x = event.which || event.keyCode;
+			if(x==38){
+				console.log("up");
+				me.sety(me.y-15);
+			}else if(x==40){
+				console.log("down");
+				me.sety(me.y+15);
+			}
+		}
+	</script>
+</head>
+<body onLoad="init()">
+	
+
+</body>
+</html>
