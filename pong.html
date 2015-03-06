@@ -36,6 +36,7 @@
 				.attr("height",function(d){return d.h;})
 				.attr("width",function(d){return d.w;})
 				.attr("fill","blue");
+
 			redraw();
 		}
 		function redraw(){
@@ -57,7 +58,6 @@
 			for(var q=0;q<2;q++){
 				if((ball.x<dd[q].w+dd[q].x&&ball.x+ball.w>dd[q].x+dd[q].w) &&((ball.y+ball.h>=dd[q].y && ball.y<=dd[q].y+dd[q].h))){
 					ball.invertx();
-					console.log("MIGHT COLLIDE");
 				}
 			}
 			dd.push(ball.coord());	

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8"/>
+	<title>Conway</title>
+	<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+	<script type="text/javascript" src="conway.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+	<style>
+		svg{
+			border:1px solid black;
+		}circle{
+			fill:black;
+		}
+	</style>
+	<script>	
+		//var screen = new Screen({w:800,h:600});
+		function trans(grid){
+			var newgrid=[]
+			for(var q=0;q<20;q++){
+				newgrid[q]=[];
+				for(var w=0;w<20;w++){
+					//COUNT NUM
+					var live=0;
+					if(q>0 && w>0)live+=grid[q-1][w-1];
+					if(q>0)live+=grid[q-1][w];
+					if(q>0 && w<19)live+=grid[q-1][w+1];
+					if(w<19)live+=grid[q][w+1];
+					if(q<19 && w<19)live+=grid[q+1][w+1];
+					if(q<19)live+=grid[q+1][w];
+					if(q<19 && w>0)live+=grid[q+1][w-1];
+					if(w>0)live+=grid[q][w-1];
+
+					if(grid[q][w]){
+						if(live<2||live>3)newgrid[q][w]=0;
+						else newgrid[q][w]=1;
+					}else{
+						if(live==3)newgrid[q][w]=1;
+						else newgrid[q][w]=0;
+					}
+				}	
+			}
+			return newgrid;
+		}
+		function flatten(newgrid){
+			var ans=[];
+			for(var q=0;q<20;q++){
+				for(var w=0;w<20;w++){
+					ans.push({x:w*20,y:q*20,v:newgrid[q][w]});
+				}
+			}
+			return ans;
+		}
+		$(document).ready(function(){
+			var box = d3.select("body").append("svg")
+				.attr("height",399)
+				.attr("width",399)
+				.attr("x",100)
+				.attr("y",100);
+
+			var scale = d3.scale.category20();
+			var grid=[];
+			for(var q=0;q<20;q++){
+				grid[q]=[];
+				for(var w=0;w<20;w++){
+					grid[q][w]=0;	
+				}
+			}
+			grid[2][2]=1;
+			grid[3][3]=1;
+			grid[4][1]=1;
+			grid[4][2]=1;
+			grid[4][3]=1;
+			/*
+			grid[10][10]=1;
+			grid[10][11]=1;
+			grid[10][12]=1;
+			grid[11][9]=1;
+			grid[11][10]=1;
+			grid[11][11]=1;
+			*/
+			var square = box.selectAll('rect').data(flatten(grid)).enter()
+				.append("rect")
+				.attr("height",19)
+				.attr("width",19)
+				.attr("x",function(d){return d.x;})
+				.attr("y",function(d){return d.y;})
+				.attr("fill",function(d){return (d.v)?"#000033":"#7f7fff"})
+				.on("click",function(e){
+					console.log("grid["+e.y/20+"]["+e.x/20+"]");
+				});
+
+			function evaluatenext(){
+				grid=trans(grid);	
+				square = box.selectAll('rect').data(flatten(grid));
+
+				square.attr("fill",function(d){return (d.v)?"#000033":"#7f7fff";});
+				setTimeout(evaluatenext,500);
+			}
+			setTimeout(evaluatenext,500);	
+		});
+	</script>
+</head>
+<body>
+	
+</body>
+</html>
